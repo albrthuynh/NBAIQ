@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { AuthProvider } from './contexts/AuthContext';
 import Navigation from '../src/components/Navigation';
 import Home from '../src/components/Home';
 import MatchPrediction from '../src/components/MatchPrediction';
@@ -6,10 +7,11 @@ import MVPAnalysis from '../src/components/MVPAnalysis';
 import Analytics from '../src/components/Analytics';
 import TeamComparison from '../src/components/TeamComparison';
 import Footer from '../src/components/Footer';
+import ProtectedRoute from '../src/components/ProtectedRoute';
 import type { Team } from '../src/types/index';
 import { teams, mvpCandidates } from '../src/data/mockData';
 
-function App() {
+function AppContent() {
   const [activeSection, setActiveSection] = useState('home');
   const [selectedTeam1, setSelectedTeam1] = useState<Team | null>(null);
   const [selectedTeam2, setSelectedTeam2] = useState<Team | null>(null);
@@ -45,15 +47,25 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
-      <Navigation activeSection={activeSection} setActiveSection={setActiveSection} />
-      
-      <main className="py-8 px-4 sm:px-6 lg:px-8">
-        {renderActiveSection()}
-      </main>
+    <ProtectedRoute>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
+        <Navigation activeSection={activeSection} setActiveSection={setActiveSection} />
+        
+        <main className="py-8 px-4 sm:px-6 lg:px-8">
+          {renderActiveSection()}
+        </main>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </ProtectedRoute>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
