@@ -10,6 +10,10 @@ import Footer from '../src/components/Footer';
 import ProtectedRoute from '../src/components/ProtectedRoute';
 import type { Team } from '../src/types/index';
 import { teams, mvpCandidates } from '../src/data/mockData';
+import axios from 'axios';
+
+// Connect Frontend to Backend
+axios.defaults.baseURL = "http://localhost:5000";
 
 function AppContent() {
   const [activeSection, setActiveSection] = useState('home');
