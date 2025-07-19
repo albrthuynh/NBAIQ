@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Eye, EyeOff, Activity } from "lucide-react"
 import { useAuth } from "../contexts/AuthContext"
+import { supabase } from "../lib/supabase"
+import api from "../lib/axios"
 
 export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -46,6 +48,36 @@ export default function AuthPage() {
     
     try {
       await signup(signupForm.firstName, signupForm.lastName, signupForm.email, signupForm.password)
+      
+      // Get the user info from Supabase after signup
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      console.log("user info: " + user?.id);
+
+      if (user) {
+        // Create user profile in the database
+        try {
+          await api.post('/api/users', {
+            user_id: user.id,
+            email: user.email,
+            full_name: `${signupForm.firstName} ${signupForm.lastName}`,
+            avatar_url: null
+          })
+          console.log("User profile created successfully")
+        } catch (profileError) {
+          console.error("Failed to create user profile:", profileError)
+          // Don't show this error to user since signup was successful
+        }
+      }
+      
+      // Reset form after successful signup
+      setSignupForm({ 
+        firstName: "", 
+        lastName: "", 
+        email: "", 
+        password: "", 
+        confirmPassword: "" 
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed")
     }

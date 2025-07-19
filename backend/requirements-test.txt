@@ -1,0 +1,9 @@
+# Testing dependencies
+pytest>=7.0.0
+pytest-flask>=1.2.0
+
+# Production dependencies (if not already in main requirements.txt)
+flask>=2.0.0
+flask-cors>=4.0.0
+supabase>=1.0.0
+python-dotenv>=1.0.0
