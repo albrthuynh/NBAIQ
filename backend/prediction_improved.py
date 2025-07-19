@@ -238,15 +238,12 @@ print("MULTIPLE MATCHUP PREDICTIONS")
 print("="*50)
 
 test_matchups = [
-    ('Boston Celtics', 'Oklahoma City Thunder'),
-    ('Indiana Pacers', 'Utah Jazz'),
+    ('Washington Wizards', 'Portland Trail Blazers'),
+    ('Portland Trail Blazers', 'Washington Wizards'),
     ('Oklahoma City Thunder', 'Indiana Pacers'),
-    ('Denver Nuggets', 'Boston Celtics'),
-    ('Los Angeles Lakers', 'Golden State Warriors'),
-    ('Miami Heat', 'Milwaukee Bucks'),
-    ('Chicago Bulls', 'Indiana Pacers'),
-    ('Indiana Pacers', 'Chicago Bulls'),
-    ('Washington Wizards', 'Utah Jazz'),
+    ('Indiana Pacers', 'Oklahoma City Thunder'),
+    ('Washington Wizards', 'Oklahoma City Thunder'),
+    ('Oklahoma City Thunder', 'Washington Wizards'),
 ]
 
 for home_team, away_team in test_matchups:
