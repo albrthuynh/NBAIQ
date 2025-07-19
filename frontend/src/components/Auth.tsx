@@ -52,6 +52,8 @@ export default function AuthPage() {
       // Get the user info from Supabase after signup
       const { data: { user } } = await supabase.auth.getUser()
       
+      console.log("user info: " + user?.id);
+
       if (user) {
         // Create user profile in the database
         try {

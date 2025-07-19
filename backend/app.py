@@ -26,8 +26,7 @@ supabase_admin = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE)
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5174", "http://localhost:5173"], 
-     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-     allow_headers=["Content-Type", "Authorization"])
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
 
 @app.route('/')
