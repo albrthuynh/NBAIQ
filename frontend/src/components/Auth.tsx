@@ -8,8 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Eye, EyeOff, Activity } from "lucide-react"
 import { useAuth } from "../contexts/AuthContext"
-import { supabase } from "../lib/supabase"
-import api from "../lib/axios"
+import { useNavigate } from "react-router-dom";
 
 export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -32,10 +31,16 @@ export default function AuthPage() {
     
     try {
       await login(loginForm.email, loginForm.password)
+      console.log("Login successful")
+
+      // Navigate to the app after successful login
+      navigate("/app")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed")
     }
   }
+
+  const navigate = useNavigate();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,7 +53,8 @@ export default function AuthPage() {
     
     try {
       await signup(signupForm.firstName, signupForm.lastName, signupForm.email, signupForm.password)
-      
+      navigate("/confirm-email", { state: { email: signupForm.email } });
+      /*
       // Get the user info from Supabase after signup
       const { data: { user } } = await supabase.auth.getUser()
       
@@ -69,6 +75,7 @@ export default function AuthPage() {
           // Don't show this error to user since signup was successful
         }
       }
+      */
       
       // Reset form after successful signup
       setSignupForm({ 
@@ -202,7 +209,7 @@ export default function AuthPage() {
                         <input type="checkbox" className="rounded border-slate-600 bg-slate-700" />
                         <span>Remember me</span>
                       </label>
-                      <a href="#" className="text-sm text-orange-500 hover:text-orange-400">
+                      <a href="/forgot-password" className="text-sm text-orange-500 hover:text-orange-400">
                         Forgot password?
                       </a>
                     </div>
