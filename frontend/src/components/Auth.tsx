@@ -8,9 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Eye, EyeOff, Activity } from "lucide-react"
 import { useAuth } from "../contexts/AuthContext"
-import { supabase } from "../lib/supabase"
 import { useNavigate } from "react-router-dom";
-import api from "../lib/axios"
 
 export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -33,6 +31,10 @@ export default function AuthPage() {
     
     try {
       await login(loginForm.email, loginForm.password)
+      console.log("Login successful")
+
+      // Navigate to the app after successful login
+      navigate("/app")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed")
     }
@@ -207,7 +209,7 @@ export default function AuthPage() {
                         <input type="checkbox" className="rounded border-slate-600 bg-slate-700" />
                         <span>Remember me</span>
                       </label>
-                      <a href="#" className="text-sm text-orange-500 hover:text-orange-400">
+                      <a href="/forgot-password" className="text-sm text-orange-500 hover:text-orange-400">
                         Forgot password?
                       </a>
                     </div>
