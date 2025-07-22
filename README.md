@@ -1,6 +1,6 @@
 # NBA IQ - NBA Analytics & Machine Learning Platform
 
-A comprehensive NBA analytics platform that uses machine learning to provide match predictions, MVP analysis, team comparisons, and detailed player statistics. Built with React, TypeScript, Python Flask, and Supabase. asdf
+A comprehensive NBA analytics platform that uses machine learning to provide match predictions, MVP analysis, team comparisons, and detailed player statistics. Built with React, TypeScript, Python Flask, and Supabase. 
 
 ## 🏀 Features
 
