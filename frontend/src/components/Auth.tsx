@@ -1,56 +1,87 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Eye, EyeOff, Activity } from "lucide-react"
-import { useAuth } from "../contexts/AuthContext"
-import { supabase } from "../lib/supabase"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Eye, EyeOff, Activity } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabase";
 import { useNavigate } from "react-router-dom";
-import api from "../lib/axios"
+import api from "../lib/axios";
 
 export default function AuthPage() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [loginForm, setLoginForm] = useState({ email: "", password: "" })
-  const [signupForm, setSignupForm] = useState({ 
-    firstName: "", 
-    lastName: "", 
-    email: "", 
-    password: "", 
-    confirmPassword: "" 
-  })
-  const [error, setError] = useState("")
-  
-  const { login, signup, isLoading } = useAuth()
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loginForm, setLoginForm] = useState({ email: "", password: "" });
+  const [signupForm, setSignupForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState("");
+
+  const { login, signup, isLoading } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    
+    e.preventDefault();
+    setError("");
     try {
-      await login(loginForm.email, loginForm.password)
+      await login(loginForm.email, loginForm.password);
+
+      // Get the user info from Supabase after login
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        // Check if user profile exists in your DB
+        const res = await api.get(`/api/users/${user.id}`);
+        if (!res.data) {
+          // If not, create it using metadata for first/last name
+          await api.post("/api/users", {
+            user_id: user.id,
+            email: user.email,
+            full_name: `${user.user_metadata?.firstName || ""} ${
+              user.user_metadata?.lastName || ""
+            }`.trim(),
+            avatar_url: null,
+          });
+        }
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Login failed")
+      setError(err instanceof Error ? err.message : "Login failed");
     }
-  }
+  };
 
   const navigate = useNavigate();
 
   const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    
+    e.preventDefault();
+    setError("");
+
     if (signupForm.password !== signupForm.confirmPassword) {
-      setError("Passwords do not match")
-      return
+      setError("Passwords do not match");
+      return;
     }
-    
+
     try {
-      await signup(signupForm.firstName, signupForm.lastName, signupForm.email, signupForm.password)
+      await signup(
+        signupForm.firstName,
+        signupForm.lastName,
+        signupForm.email,
+        signupForm.password
+      );
       navigate("/confirm-email", { state: { email: signupForm.email } });
       /*
       // Get the user info from Supabase after signup
@@ -74,19 +105,19 @@ export default function AuthPage() {
         }
       }
       */
-      
+
       // Reset form after successful signup
-      setSignupForm({ 
-        firstName: "", 
-        lastName: "", 
-        email: "", 
-        password: "", 
-        confirmPassword: "" 
-      })
+      setSignupForm({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed")
+      setError(err instanceof Error ? err.message : "Registration failed");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -101,19 +132,34 @@ export default function AuthPage() {
               </span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#" className="text-orange-500 hover:text-orange-400 transition-colors">
+              <a
+                href="#"
+                className="text-orange-500 hover:text-orange-400 transition-colors"
+              >
                 Home
               </a>
-              <a href="#" className="text-slate-300 hover:text-white transition-colors">
+              <a
+                href="#"
+                className="text-slate-300 hover:text-white transition-colors"
+              >
                 Match Prediction
               </a>
-              <a href="#" className="text-slate-300 hover:text-white transition-colors">
+              <a
+                href="#"
+                className="text-slate-300 hover:text-white transition-colors"
+              >
                 MVP Analysis
               </a>
-              <a href="#" className="text-slate-300 hover:text-white transition-colors">
+              <a
+                href="#"
+                className="text-slate-300 hover:text-white transition-colors"
+              >
                 Analytics
               </a>
-              <a href="#" className="text-slate-300 hover:text-white transition-colors">
+              <a
+                href="#"
+                className="text-slate-300 hover:text-white transition-colors"
+              >
                 Team Comparison
               </a>
             </div>
@@ -139,7 +185,10 @@ export default function AuthPage() {
           <Card className="bg-slate-800/50 border-slate-700 backdrop-blur-sm">
             <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2 bg-slate-700/50">
-                <TabsTrigger value="login" className="data-[state=active]:bg-orange-500 data-[state=active]:text-white">
+                <TabsTrigger
+                  value="login"
+                  className="data-[state=active]:bg-orange-500 data-[state=active]:text-white"
+                >
                   Sign In
                 </TabsTrigger>
                 <TabsTrigger
@@ -153,7 +202,9 @@ export default function AuthPage() {
               {/* Login Form */}
               <TabsContent value="login">
                 <CardHeader className="space-y-1">
-                  <CardTitle className="text-2xl text-white">Welcome back</CardTitle>
+                  <CardTitle className="text-2xl text-white">
+                    Welcome back
+                  </CardTitle>
                   <CardDescription className="text-slate-400">
                     Enter your credentials to access your account
                   </CardDescription>
@@ -174,7 +225,9 @@ export default function AuthPage() {
                         type="email"
                         placeholder="Enter your email"
                         value={loginForm.email}
-                        onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                        onChange={(e) =>
+                          setLoginForm({ ...loginForm, email: e.target.value })
+                        }
                         className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-orange-500"
                         required
                       />
@@ -189,7 +242,12 @@ export default function AuthPage() {
                           type={showPassword ? "text" : "password"}
                           placeholder="Enter your password"
                           value={loginForm.password}
-                          onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                          onChange={(e) =>
+                            setLoginForm({
+                              ...loginForm,
+                              password: e.target.value,
+                            })
+                          }
                           className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-orange-500 pr-10"
                           required
                         />
@@ -198,20 +256,30 @@ export default function AuthPage() {
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
                         >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <label className="flex items-center space-x-2 text-sm text-slate-300">
-                        <input type="checkbox" className="rounded border-slate-600 bg-slate-700" />
+                        <input
+                          type="checkbox"
+                          className="rounded border-slate-600 bg-slate-700"
+                        />
                         <span>Remember me</span>
                       </label>
-                      <a href="#" className="text-sm text-orange-500 hover:text-orange-400">
+                      <a
+                        href="#"
+                        className="text-sm text-orange-500 hover:text-orange-400"
+                      >
                         Forgot password?
                       </a>
                     </div>
-                    <Button 
+                    <Button
                       type="submit"
                       disabled={isLoading}
                       className="w-full bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-50"
@@ -224,7 +292,9 @@ export default function AuthPage() {
                       <span className="w-full border-t border-slate-600" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-slate-800 px-2 text-slate-400">Or continue with</span>
+                      <span className="bg-slate-800 px-2 text-slate-400">
+                        Or continue with
+                      </span>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -247,7 +317,9 @@ export default function AuthPage() {
               {/* Signup Form */}
               <TabsContent value="signup">
                 <CardHeader className="space-y-1">
-                  <CardTitle className="text-2xl text-white">Create account</CardTitle>
+                  <CardTitle className="text-2xl text-white">
+                    Create account
+                  </CardTitle>
                   <CardDescription className="text-slate-400">
                     Join NBA IQ to access advanced basketball analytics
                   </CardDescription>
@@ -268,7 +340,12 @@ export default function AuthPage() {
                           id="firstName"
                           placeholder="John"
                           value={signupForm.firstName}
-                          onChange={(e) => setSignupForm({ ...signupForm, firstName: e.target.value })}
+                          onChange={(e) =>
+                            setSignupForm({
+                              ...signupForm,
+                              firstName: e.target.value,
+                            })
+                          }
                           className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-orange-500"
                           required
                         />
@@ -281,7 +358,12 @@ export default function AuthPage() {
                           id="lastName"
                           placeholder="Doe"
                           value={signupForm.lastName}
-                          onChange={(e) => setSignupForm({ ...signupForm, lastName: e.target.value })}
+                          onChange={(e) =>
+                            setSignupForm({
+                              ...signupForm,
+                              lastName: e.target.value,
+                            })
+                          }
                           className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-orange-500"
                           required
                         />
@@ -296,13 +378,21 @@ export default function AuthPage() {
                         type="email"
                         placeholder="Enter your email"
                         value={signupForm.email}
-                        onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
+                        onChange={(e) =>
+                          setSignupForm({
+                            ...signupForm,
+                            email: e.target.value,
+                          })
+                        }
                         className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-orange-500"
                         required
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signupPassword" className="text-slate-300">
+                      <Label
+                        htmlFor="signupPassword"
+                        className="text-slate-300"
+                      >
                         Password
                       </Label>
                       <div className="relative">
@@ -311,7 +401,12 @@ export default function AuthPage() {
                           type={showPassword ? "text" : "password"}
                           placeholder="Create a password"
                           value={signupForm.password}
-                          onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
+                          onChange={(e) =>
+                            setSignupForm({
+                              ...signupForm,
+                              password: e.target.value,
+                            })
+                          }
                           className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-orange-500 pr-10"
                           required
                         />
@@ -320,12 +415,19 @@ export default function AuthPage() {
                           onClick={() => setShowPassword(!showPassword)}
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
                         >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-slate-300">
+                      <Label
+                        htmlFor="confirmPassword"
+                        className="text-slate-300"
+                      >
                         Confirm password
                       </Label>
                       <div className="relative">
@@ -334,33 +436,54 @@ export default function AuthPage() {
                           type={showConfirmPassword ? "text" : "password"}
                           placeholder="Confirm your password"
                           value={signupForm.confirmPassword}
-                          onChange={(e) => setSignupForm({ ...signupForm, confirmPassword: e.target.value })}
+                          onChange={(e) =>
+                            setSignupForm({
+                              ...signupForm,
+                              confirmPassword: e.target.value,
+                            })
+                          }
                           className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-orange-500 pr-10"
                           required
                         />
                         <button
                           type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-300"
                         >
-                          {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <input type="checkbox" className="rounded border-slate-600 bg-slate-700" required />
+                      <input
+                        type="checkbox"
+                        className="rounded border-slate-600 bg-slate-700"
+                        required
+                      />
                       <label className="text-sm text-slate-300">
                         I agree to the{" "}
-                        <a href="#" className="text-orange-500 hover:text-orange-400">
+                        <a
+                          href="#"
+                          className="text-orange-500 hover:text-orange-400"
+                        >
                           Terms of Service
                         </a>{" "}
                         and{" "}
-                        <a href="#" className="text-orange-500 hover:text-orange-400">
+                        <a
+                          href="#"
+                          className="text-orange-500 hover:text-orange-400"
+                        >
                           Privacy Policy
                         </a>
                       </label>
                     </div>
-                    <Button 
+                    <Button
                       type="submit"
                       disabled={isLoading}
                       className="w-full bg-orange-500 hover:bg-orange-600 text-white disabled:opacity-50"
@@ -373,7 +496,9 @@ export default function AuthPage() {
                       <span className="w-full border-t border-slate-600" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-slate-800 px-2 text-slate-400">Or continue with</span>
+                      <span className="bg-slate-800 px-2 text-slate-400">
+                        Or continue with
+                      </span>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -397,10 +522,12 @@ export default function AuthPage() {
 
           {/* Footer */}
           <div className="text-center mt-8">
-            <p className="text-slate-400 text-sm">© 2024 NBA IQ. Advanced Basketball Analytics Platform.</p>
+            <p className="text-slate-400 text-sm">
+              © 2024 NBA IQ. Advanced Basketball Analytics Platform.
+            </p>
           </div>
         </div>
       </main>
     </div>
-  )
+  );
 }
