@@ -76,12 +76,16 @@ export default function AuthPage() {
     }
 
     try {
-      await signup(
-        signupForm.firstName,
-        signupForm.lastName,
-        signupForm.email,
-        signupForm.password
-      );
+      const { error } = await supabase.auth.signUp(
+        {
+          email: signupForm.email,
+          password: signupForm.password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`
+          }
+        }
+      )
+
       navigate("/confirm-email", { state: { email: signupForm.email } });
       /*
       // Get the user info from Supabase after signup
