@@ -7,8 +7,8 @@ from sklearn.preprocessing import StandardScaler
 
 # Load the datasets
 print("Loading datasets...")
-games_data = pd.read_csv('Games.csv')
-team_stats_data = pd.read_csv('Team Stats Per 100 Poss.csv')
+games_data = pd.read_csv('data/Games.csv')
+team_stats_data = pd.read_csv('data/Team Stats Per 100 Poss.csv')
 
 # Filter for only the 2025 season
 games_2025 = games_data[games_data['gameDate'].str.contains('2025')].copy()
