@@ -45,18 +45,18 @@ export default function AuthPage() {
       } = await supabase.auth.getUser();
 
       if (user) {
-        // Check if user profile exists in your DB
-        const res = await api.get(`/api/users/${user.id}`);
-        if (!res.data) {
-          // If not, create it using metadata for first/last name
-          await api.post("/api/users", {
+        // Create user profile in the database
+        try {
+          await api.post('/api/users', {
             user_id: user.id,
             email: user.email,
-            full_name: `${user.user_metadata?.firstName || ""} ${
-              user.user_metadata?.lastName || ""
-            }`.trim(),
-            avatar_url: null,
-          });
+            full_name: `${signupForm.firstName} ${signupForm.lastName}`,
+            avatar_url: null
+          })
+          console.log("User profile created successfully")
+        } catch (profileError) {
+          console.error("Failed to create user profile:", profileError)
+          // Don't show this error to user since signup was successful
         }
       }
     } catch (err) {
@@ -80,9 +80,6 @@ export default function AuthPage() {
         {
           email: signupForm.email,
           password: signupForm.password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`
-          }
         }
       )
 
