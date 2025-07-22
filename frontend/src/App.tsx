@@ -11,6 +11,8 @@ import ProtectedRoute from "../src/components/ProtectedRoute";
 import type { Team } from "../src/types/index";
 import { teams, mvpCandidates } from "../src/data/mockData";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ForgotPasswordPage from "./components/ForgotPassword";
+import ResetPasswordPage from "./components/ResetPassword";
 import AuthPage from "./components/Auth";
 import EmailConfirmation from "./components/EmailConfirmation";
 import axios from "axios";
@@ -79,6 +81,8 @@ function App() {
           <Route path="/" element={<AuthPage />} />
           <Route path="/confirm-email" element={<EmailConfirmation />} />
           <Route path="/app/*" element={<AppContent />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
+          <Route path="/reset-password" element={<ResetPasswordPage/>}/>
         </Routes>
       </BrowserRouter>
     </AuthProvider>

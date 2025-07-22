@@ -1,22 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, EyeOff, Activity } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
-import { supabase } from "../lib/supabase";
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Eye, EyeOff, Activity } from "lucide-react"
+import { useAuth } from "../contexts/AuthContext"
 import { useNavigate } from "react-router-dom";
-import api from "../lib/axios";
 
 export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -37,28 +29,11 @@ export default function AuthPage() {
     e.preventDefault();
     setError("");
     try {
-      await login(loginForm.email, loginForm.password);
+      await login(loginForm.email, loginForm.password)
+      console.log("Login successful")
 
-      // Get the user info from Supabase after login
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        // Create user profile in the database
-        try {
-          await api.post('/api/users', {
-            user_id: user.id,
-            email: user.email,
-            full_name: `${signupForm.firstName} ${signupForm.lastName}`,
-            avatar_url: null
-          })
-          console.log("User profile created successfully")
-        } catch (profileError) {
-          console.error("Failed to create user profile:", profileError)
-          // Don't show this error to user since signup was successful
-        }
-      }
+      // Navigate to the app after successful login
+      navigate("/app")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     }
@@ -273,10 +248,7 @@ export default function AuthPage() {
                         />
                         <span>Remember me</span>
                       </label>
-                      <a
-                        href="#"
-                        className="text-sm text-orange-500 hover:text-orange-400"
-                      >
+                      <a href="/forgot-password" className="text-sm text-orange-500 hover:text-orange-400">
                         Forgot password?
                       </a>
                     </div>
