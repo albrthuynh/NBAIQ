@@ -13,7 +13,6 @@ __pycache__/
 *.so
 .Python
 env/
-venv/
 ENV/
 
 # Logs
