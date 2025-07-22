@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Eye, EyeOff, Activity } from "lucide-react"
 import { useAuth } from "../contexts/AuthContext"
 import { supabase } from "../lib/supabase"
+import { useNavigate } from "react-router-dom";
 import api from "../lib/axios"
 
 export default function AuthPage() {
@@ -37,6 +38,8 @@ export default function AuthPage() {
     }
   }
 
+  const navigate = useNavigate();
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
@@ -48,7 +51,8 @@ export default function AuthPage() {
     
     try {
       await signup(signupForm.firstName, signupForm.lastName, signupForm.email, signupForm.password)
-      
+      navigate("/confirm-email", { state: { email: signupForm.email } });
+      /*
       // Get the user info from Supabase after signup
       const { data: { user } } = await supabase.auth.getUser()
       
@@ -69,6 +73,7 @@ export default function AuthPage() {
           // Don't show this error to user since signup was successful
         }
       }
+      */
       
       // Reset form after successful signup
       setSignupForm({ 
