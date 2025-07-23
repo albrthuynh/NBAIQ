@@ -10,6 +10,8 @@ import { Eye, EyeOff, Activity } from "lucide-react"
 import { useAuth } from "../contexts/AuthContext"
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase"
+import api from "../lib/axios";
+
 
 export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -30,11 +32,30 @@ export default function AuthPage() {
     e.preventDefault();
     setError("");
     try {
-      await login(loginForm.email, loginForm.password)
-      console.log("Login successful")
+      await login(loginForm.email, loginForm.password);
 
-      // Navigate to the app after successful login
-      navigate("/app")
+      // Get the user info from Supabase after login
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        // Create user profile in the database
+        try {
+          await api.post('/api/users', {
+            user_id: user.id,
+            email: user.email,
+            full_name: `${signupForm.firstName} ${signupForm.lastName}`,
+            avatar_url: null
+          })
+          console.log("User profile created successfully")
+        } catch (profileError) {
+          console.error("Failed to create user profile:", profileError)
+          // Don't show this error to user since signup was successful
+        }
+      }
+
+      navigate("/app");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     }
@@ -59,29 +80,12 @@ export default function AuthPage() {
         }
       )
 
-      navigate("/confirm-email", { state: { email: signupForm.email } });
-      /*
-      // Get the user info from Supabase after signup
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      console.log("user info: " + user?.id);
-
-      if (user) {
-        // Create user profile in the database
-        try {
-          await api.post('/api/users', {
-            user_id: user.id,
-            email: user.email,
-            full_name: `${signupForm.firstName} ${signupForm.lastName}`,
-            avatar_url: null
-          })
-          console.log("User profile created successfully")
-        } catch (profileError) {
-          console.error("Failed to create user profile:", profileError)
-          // Don't show this error to user since signup was successful
-        }
+      if (error) {
+        setError(error.message);
+        return;
       }
-      */
+
+      navigate("/confirm-email", { state: { email: signupForm.email } });
 
       // Reset form after successful signup
       setSignupForm({
