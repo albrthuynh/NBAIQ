@@ -45,7 +45,7 @@ export default function AuthPage() {
           await api.post('/api/users', {
             user_id: user.id,
             email: user.email,
-            full_name: `${signupForm.firstName} ${signupForm.lastName}`,
+            full_name: `${user.user_metadata?.firstName || ""} ${user.user_metadata?.lastName || ""}`.trim(),
             avatar_url: null
           })
           console.log("User profile created successfully")
@@ -73,12 +73,17 @@ export default function AuthPage() {
     }
 
     try {
-      const { error } = await supabase.auth.signUp(
-        {
-          email: signupForm.email,
-          password: signupForm.password,
+      const { error } = await supabase.auth.signUp({
+        email: signupForm.email,
+        password: signupForm.password,
+        options: {
+          data: {
+            firstName: signupForm.firstName,
+            lastName: signupForm.lastName,
+          },
+          emailRedirectTo: `${window.location.origin}/`
         }
-      )
+      });
 
       if (error) {
         setError(error.message);
