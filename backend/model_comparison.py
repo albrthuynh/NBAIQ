@@ -72,7 +72,7 @@ def compare_models(home_team, home_season, away_team, away_season):
     winners = []
     model_predictions = []
 
-    print(f"Comparing teams: Home: {home_team} ({home_season}) vs Away: {away_team} ({away_season})")
+    print(f"\nComparing teams: Home: {home_team} ({home_season}) vs Away: {away_team} ({away_season})")
     for name, (model, scaler) in models.items():
         print()
         print(f"\nUsing {name} model...")
@@ -102,11 +102,21 @@ def compare_models(home_team, home_season, away_team, away_season):
     print(f"Average probability {away_team} wins: {avg_away_prob:.3f}")
     print(f"\nPredicted winner: {winner}\n")
 
+    return {
+        "home_team": home_team,
+        "home_season": home_season,
+        "away_team": away_team,
+        "away_season": away_season,
+        "avg_home_prob": avg_home_prob,
+        "avg_away_prob": avg_away_prob,
+        "predicted_winner": winner
+    }
+
 
 if __name__ == "__main__":
     # Example usage:
-    home_team = "Golden State Warriors"
+    home_team = "Chicago Bulls"
     home_season = 2025
-    away_team = "Utah Jazz"
+    away_team = "Indiana Pacers"
     away_season = 2025
-    compare_models(home_team, home_season, away_team, away_season)
+    results = compare_models(home_team, home_season, away_team, away_season)
