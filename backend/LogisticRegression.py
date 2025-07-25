@@ -89,19 +89,6 @@ else:
     print(f"\nPrediction accuracy for {target_team} in {target_season}: {accuracy_team:.3f}")
     print(classification_report(y_team_test, y_pred_team))
 
-def LogisticRegressionModel(X_train, y_train):
-    model = LogisticRegression(
-        penalty='l2', 
-        C=10.0, 
-        solver='saga', 
-        max_iter=500, 
-        random_state=42,
-        n_jobs=-1  
-    )
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    model.fit(X_train_scaled, y_train.values.ravel())
-    return model, scaler
 
 # Test teams here
 if __name__ == "__main__":
