@@ -219,6 +219,83 @@ class TestUserEndpoints:
         data = json.loads(response.data)
         assert data["error"] == "Internal server error"
 
+
+class TestPredictionEndpoint:
+    """Test class for prediction API endpoint"""
+
+    def test_predict_success(self, client):
+        """Test successful prediction request"""
+        prediction_payload = {
+            "home_team": "Chicago Bulls",
+            "home_season": 2025,
+            "away_team": "Indiana Pacers",
+            "away_season": 2025,
+        }
+
+        mock_model = MagicMock()
+        mock_model.predict.return_value = [1]
+        mock_model.predict_proba.return_value = [[0.3, 0.7]]
+
+        mock_scaler = MagicMock()
+        mock_scaler.transform.return_value = [[0.1] * 22]
+
+        with patch("app.initialize_prediction_resources"), \
+             patch("app.MODEL", mock_model), \
+             patch("app.SCALER", mock_scaler), \
+             patch("app.TEAM_STATS_DF", MagicMock()), \
+             patch("app.get_team_stats", side_effect=[MagicMock(), MagicMock()]), \
+             patch("app.build_feature_vector", return_value=MagicMock()):
+            response = client.post(
+                "/api/predict",
+                data=json.dumps(prediction_payload),
+                content_type="application/json",
+            )
+
+        assert response.status_code == 200
+        data = json.loads(response.data)
+        assert data["predicted_winner"] == "Chicago Bulls"
+        assert data["home_win_probability"] == 0.7
+        assert data["away_win_probability"] == 0.3
+        assert data["model"] == "RandomForestClassifier"
+
+    def test_predict_missing_required_fields(self, client):
+        """Test prediction endpoint validation for missing fields"""
+        incomplete_payload = {
+            "home_team": "Chicago Bulls",
+            "away_team": "Indiana Pacers",
+        }
+
+        response = client.post(
+            "/api/predict",
+            data=json.dumps(incomplete_payload),
+            content_type="application/json",
+        )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert "Missing required fields" in data["error"]
+
+    def test_predict_invalid_team(self, client):
+        """Test prediction endpoint when team stats are unavailable"""
+        prediction_payload = {
+            "home_team": "Fake Team",
+            "home_season": 2025,
+            "away_team": "Indiana Pacers",
+            "away_season": 2025,
+        }
+
+        with patch("app.initialize_prediction_resources"), \
+             patch("app.get_team_stats", side_effect=ValueError("Stats not found for Fake Team in 2025")):
+            response = client.post(
+                "/api/predict",
+                data=json.dumps(prediction_payload),
+                content_type="application/json",
+            )
+
+        assert response.status_code == 400
+        data = json.loads(response.data)
+        assert "Stats not found" in data["error"]
+
 if __name__ == '__main__':
     # Run tests with pytest
     pytest.main([__file__, '-v'])

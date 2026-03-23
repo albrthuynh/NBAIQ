@@ -14,11 +14,7 @@ __pycache__/
 .Python
 env/
 ENV/
-<<<<<<< HEAD
 venv/
-=======
-venv
->>>>>>> predictions
 
 # Logs
 logs

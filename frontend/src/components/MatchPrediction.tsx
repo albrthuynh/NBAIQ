@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Target, Zap, Trophy } from 'lucide-react';
+import axios from 'axios';
 import type { Team } from '../types/index';
 
 interface MatchPredictionProps {
@@ -18,14 +19,42 @@ export default function MatchPrediction({
   setSelectedTeam2 
 }: MatchPredictionProps) {
   const [matchPrediction, setMatchPrediction] = useState<string | null>(null);
+  const [homeWinProbability, setHomeWinProbability] = useState<number | null>(null);
+  const [awayWinProbability, setAwayWinProbability] = useState<number | null>(null);
+  const [homeSeason, setHomeSeason] = useState<number>(2025);
+  const [awaySeason, setAwaySeason] = useState<number>(2025);
+  const [isLoadingPrediction, setIsLoadingPrediction] = useState(false);
+  const [predictionError, setPredictionError] = useState<string | null>(null);
 
-  const handleMatchPrediction = () => {
-    if (selectedTeam1 && selectedTeam2) {
-      const team1Score = selectedTeam1.offensiveRating - selectedTeam2.defensiveRating + Math.random() * 10;
-      const team2Score = selectedTeam2.offensiveRating - selectedTeam1.defensiveRating + Math.random() * 10;
-      const winner = team1Score > team2Score ? selectedTeam1 : selectedTeam2;
-      const confidence = Math.round(Math.abs(team1Score - team2Score) * 5 + 60);
-      setMatchPrediction(`${winner.city} ${winner.name} - ${confidence}% confidence`);
+  const handleMatchPrediction = async () => {
+    if (!selectedTeam1 || !selectedTeam2) return;
+
+    setPredictionError(null);
+    setIsLoadingPrediction(true);
+
+    try {
+      const response = await axios.post('/api/predict', {
+        home_team: `${selectedTeam1.city} ${selectedTeam1.name}`,
+        home_season: homeSeason,
+        away_team: `${selectedTeam2.city} ${selectedTeam2.name}`,
+        away_season: awaySeason,
+      });
+
+      const prediction = response.data;
+      setMatchPrediction(prediction.predicted_winner);
+      setHomeWinProbability(Number(prediction.home_win_probability) * 100);
+      setAwayWinProbability(Number(prediction.away_win_probability) * 100);
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        setPredictionError(error.response?.data?.error || 'Failed to fetch prediction');
+      } else {
+        setPredictionError('Failed to fetch prediction');
+      }
+      setMatchPrediction(null);
+      setHomeWinProbability(null);
+      setAwayWinProbability(null);
+    } finally {
+      setIsLoadingPrediction(false);
     }
   };
 
@@ -111,15 +140,47 @@ export default function MatchPrediction({
                       <div className="text-white font-medium">{selectedTeam2.name}</div>
                     </div>
                   </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                    <label className="text-left">
+                      <div className="text-sm text-slate-300 mb-1">
+                        {selectedTeam1.name} season (home)
+                      </div>
+                      <input
+                        type="number"
+                        value={homeSeason}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHomeSeason(Number(e.target.value))}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-600 bg-slate-800/40 text-white"
+                      />
+                    </label>
+                    <label className="text-left">
+                      <div className="text-sm text-slate-300 mb-1">
+                        {selectedTeam2.name} season (away)
+                      </div>
+                      <input
+                        type="number"
+                        value={awaySeason}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAwaySeason(Number(e.target.value))}
+                        className="w-full px-3 py-2 rounded-lg border border-slate-600 bg-slate-800/40 text-white"
+                      />
+                    </label>
+                  </div>
                   
                   <button
                     onClick={handleMatchPrediction}
+                    disabled={isLoadingPrediction}
                     className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105"
                   >
                     <Zap className="inline mr-2 h-5 w-5" />
-                    Generate Prediction
+                    {isLoadingPrediction ? 'Generating...' : 'Generate Prediction'}
                   </button>
                 </div>
+
+                {predictionError && (
+                  <div className="mt-6 p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
+                    <div className="text-red-300 text-sm">{predictionError}</div>
+                  </div>
+                )}
 
                 {matchPrediction && (
                   <div className="mt-6 p-4 bg-green-500/20 border border-green-500/30 rounded-lg">
@@ -128,6 +189,12 @@ export default function MatchPrediction({
                       <span className="text-green-400 font-semibold">Predicted Winner:</span>
                     </div>
                     <div className="text-white text-lg mt-1">{matchPrediction}</div>
+                    {homeWinProbability !== null && awayWinProbability !== null && (
+                      <div className="text-slate-200 mt-3 space-y-1">
+                        <div>{selectedTeam1.name} win probability: {homeWinProbability.toFixed(1)}%</div>
+                        <div>{selectedTeam2.name} win probability: {awayWinProbability.toFixed(1)}%</div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

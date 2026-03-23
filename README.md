@@ -1,66 +1,47 @@
-# NBA IQ - NBA Analytics & Machine Learning Platform
+# NBA IQ
 
-A comprehensive NBA analytics platform that uses machine learning to provide match predictions, MVP analysis, team comparisons, and detailed player statistics. Built with React, TypeScript, Python Flask, and Supabase. 
+NBA IQ is an NBA analytics and machine learning platform built with React, TypeScript, Flask, and Supabase.
 
-## 🏀 Features
+## Features
 
-- **Match Prediction**: AI-powered game outcome predictions using advanced ML algorithms
-- **MVP Analysis**: Statistical analysis to predict Most Valuable Player candidates
-- **Team Comparison**: Side-by-side team statistics and performance metrics
-- **Interactive Analytics**: Real-time data visualization and insights
-- **User Authentication**: Secure login and personalized experience
-- **Responsive Design**: Mobile-friendly interface built with Tailwind CSS
+- Match prediction with backend ML inference
+- MVP analysis and team comparison views
+- Authenticated user flow with Supabase
+- Responsive frontend built with Tailwind CSS
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
-- **React 19** with TypeScript
-- **Vite** for fast development and building
-- **Tailwind CSS** for styling
-- **Radix UI** for accessible components
-- **Axios** for API communication
-- **Lucide React** for icons
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS
+- Axios
 
 ### Backend
-- **Python Flask** RESTful API
-- **Machine Learning**: scikit-learn, XGBoost, pandas, numpy
-- **Supabase** for database and authentication
-- **Flask-CORS** for cross-origin requests
+- Flask
+- scikit-learn, XGBoost, pandas, numpy
+- Supabase + Flask-CORS
 
-### Database
-- **Supabase** (PostgreSQL) for user data and analytics storage
+## Prerequisites
 
-## 📋 Prerequisites
+- Node.js 18+
+- npm
+- Python 3.8+
+- pip
+- Supabase project credentials
 
-Before you begin, ensure you have the following installed:
+## Setup
 
-- **Node.js** (v18 or higher)
-- **npm** or **yarn**
-- **Python** (3.8 or higher)
-- **pip** (Python package installer)
-- **Supabase Account** (for database and authentication)
-
-## 🚀 Setup Instructions
-
-### 1. Clone the Repository
+### 1) Clone
 
 ```bash
 git clone https://github.com/albrthuynh/NBAIQ.git
-cd AA-Hackathon
+cd NBAIQ
 ```
 
-### 2. Supabase Setup
+### 2) Environment variables
 
-1. Create a free account at [Supabase](https://supabase.com)
-2. Create a new project
-3. Go to **Settings > API** and copy:
-   - Project URL
-   - Anon/Public Key
-   - Service Role Key (keep this secret!)
-
-### 3. Environment Configuration
-
-Create a `.env.local` file in the **root directory**:
+Create `.env.local` in the project root:
 
 ```env
 SUPABASE_URL=your_supabase_project_url
@@ -68,158 +49,84 @@ SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE=your_supabase_service_role_key
 ```
 
-### 4. Backend Setup
-
-Navigate to the backend directory and install dependencies:
+### 3) Backend
 
 ```bash
 cd backend
 pip install -r requirements.txt
 ```
 
-**Requirements include:**
-- pandas>=1.5.0
-- scikit-learn>=1.2.0
-- xgboost>=1.7.0
-- numpy>=1.21.0
-- flask
-- flask-cors
-- supabase
-- python-dotenv
-
-### 5. Frontend Setup
-
-Navigate to the frontend directory and install dependencies:
+### 4) Frontend
 
 ```bash
-cd ../frontend
+cd frontend
 npm install
 ```
 
-## 🏃‍♂️ Running the Application
+## Run
 
-### Start the Backend Server
+### Backend
 
 ```bash
 cd backend
 python app.py
 ```
 
-The Flask API will run on `http://localhost:5000`
+Backend runs at `http://localhost:5000`.
 
-### Start the Frontend Development Server
+### Frontend
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-The React app will run on `http://localhost:5173` (or `http://localhost:5174` if 5173 is occupied)
+Frontend runs at `http://localhost:5173` (or `http://localhost:5174` if occupied).
 
-## 📁 Project Structure
+## API
 
-```
-AA-Hackathon/
-├── backend/
-│   ├── app.py                 # Flask API server
-│   ├── prediction_improved.py # ML prediction models
-│   ├── Games.csv             # NBA games dataset
-│   ├── Team Stats Per 100 Poss.csv # Team statistics
-│   ├── requirements.txt      # Python dependencies
-│   └── test_api.py          # API tests
-├── frontend/
-│   ├── src/
-│   │   ├── components/       # React components
-│   │   ├── contexts/        # React contexts (Auth)
-│   │   ├── lib/            # Utility libraries
-│   │   ├── types/          # TypeScript type definitions
-│   │   └── data/           # Mock data
-│   ├── package.json        # Node.js dependencies
-│   └── vite.config.ts      # Vite configuration
-└── README.md              # This file
+### `POST /api/predict`
+
+Request body:
+
+```json
+{
+  "home_team": "Chicago Bulls",
+  "home_season": 2025,
+  "away_team": "Indiana Pacers",
+  "away_season": 2025
+}
 ```
 
-## 🔧 Configuration
+Response body:
 
-### Port Configuration
-
-- **Backend**: Runs on port 5000 by default
-- **Frontend**: Runs on port 5173 by default (auto-increments if occupied)
-
-To change the frontend port, modify `vite.config.ts`:
-
-```typescript
-export default defineConfig({
-  // ... other config
-  server: {
-    port: 3000, // Your desired port
-    strictPort: true, // Fail if port is occupied
-  },
-})
+```json
+{
+  "home_team": "Chicago Bulls",
+  "home_season": 2025,
+  "away_team": "Indiana Pacers",
+  "away_season": 2025,
+  "predicted_winner": "Chicago Bulls",
+  "home_win_probability": 0.7,
+  "away_win_probability": 0.3,
+  "model": "RandomForestClassifier"
+}
 ```
 
-### CORS Configuration
-
-The backend is configured to accept requests from:
-- `http://localhost:5173`
-- `http://localhost:5174`
-
-Update the CORS configuration in `backend/app.py` if using different ports.
-
-## 🧪 Testing
-
-Run backend tests:
+## Testing
 
 ```bash
 cd backend
 python -m pytest test_api.py
 ```
 
-Or use the provided test script:
+If `pytest` is missing in your environment:
 
 ```bash
-cd backend
-chmod +x run_tests.sh
-./run_tests.sh
+pip install pytest
 ```
 
-## 📊 Data Sources
+## Notes
 
-The application uses NBA statistical data including:
-- Historical game results
-- Team performance metrics (per 100 possessions)
-- Player statistics
-- Advanced analytics
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 🆘 Troubleshooting
-
-### Common Issues
-
-1. **Port conflicts**: If you get port errors, check what's running on your ports with `lsof -i :5173`
-2. **Supabase connection errors**: Verify your environment variables are correctly set
-3. **CORS errors**: Ensure the backend CORS configuration matches your frontend URL
-4. **Python package errors**: Make sure you're using Python 3.8+ and have installed all requirements
-
-### Support
-
-If you encounter any issues, please:
-1. Check the console for error messages
-2. Verify all environment variables are set correctly
-3. Ensure all dependencies are installed
-4. Create an issue on GitHub with detailed error information
-
----
-
-Built with ❤️ for NBA analytics enthusiasts
+- Backend CORS currently allows `http://localhost:5173` and `http://localhost:5174`.
+- Update allowed origins in `backend/app.py` if your frontend runs on a different port.
